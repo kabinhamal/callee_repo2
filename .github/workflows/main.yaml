@@ -1,0 +1,28 @@
+name: third Repo
+
+on:
+  repository_dispatch:
+    types: [repo-b-workflow]
+  workflow_run:
+    workflows: ["callee_repo"]
+    types: [completed]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repo B
+        uses: actions/checkout@v3
+
+      - name: Run Dependent Steps
+        if: ${{ github.event.repository_dispatch }}
+        run: |
+          # Access the payload sent from repo C
+          echo "Payload Key 1: ${{ github.event.client_payload.payload_key1 }}"
+          echo "Payload Key 2: ${{ github.event.client_payload.payload_key2 }}"
+
+      - name: Run Additional Steps
+        if: ${{ github.event.workflow_run.conclusion == 'success' }}
+        run: |
+          # Add your additional workflow steps here
